@@ -65,16 +65,16 @@ cat >/etc/nova/nova-manage.conf << NOVA_CONF_EOF
 --libvirt_type=$LIBVIRT_TYPE
 NOVA_CONF_EOF
 
-if [ "$USE_FLAT_NETWORK" == 1 ]; then
-cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
---network_manager=nova.network.manager.FlatManager
---fixed_range=${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX}
---network_size=${FLAT_NETWORK_SIZE}
---flat_network=true
---flat_network_bridge=br0
---flat_network_broadcast=${FLAT_NETWORK_BROADCAST}
-NOVA_NET_CONF_EOF
-fi
+# if [ "$USE_FLAT_NETWORK" == 1 ]; then
+# cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
+# --network_manager=nova.network.manager.FlatManager
+# --fixed_range=${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX}
+# --network_size=${FLAT_NETWORK_SIZE}
+# --flat_network=true
+# --flat_network_bridge=br0
+# --flat_network_broadcast=${FLAT_NETWORK_BROADCAST}
+# NOVA_NET_CONF_EOF
+# fi
 
 if [ "$CMD" == "branch" ]; then
     sudo apt-get install -y bzr
@@ -149,7 +149,7 @@ if [ "$CMD" == "run" ]; then
 	if [ "$USE_FLAT_NETWORK" == 1 ]; then
 		$NOVA_DIR/bin/nova-manage network create
 	else
-    	$NOVA_DIR/bin/nova-manage network create 192.168.2.0/24 3 24
+    	$NOVA_DIR/bin/nova-manage network create ${FLAT_NETWORK}/${FLAT_NETWORK_MASK} 3 ${FLAT_NETWORK_SIZE}
 	fi
 
 
