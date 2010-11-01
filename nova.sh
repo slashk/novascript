@@ -7,11 +7,11 @@ USE_MYSQL=1
 MYSQL_PASS=nova
 USE_LDAP=0
 LIBVIRT_TYPE=kvm
-USE_FLAT_NETWORK=1
-FLAT_NETWORK=192.168.1.128 # Your network
-FLAT_NETWORK_PREFIX=26 # CIDR
+USE_FLAT_NETWORK=0
+FLAT_NETWORK=192.168.2.0 # Your network
+FLAT_NETWORK_PREFIX=16 # CIDR
 FLAT_NETWORK_SIZE=16 # number of nodes
-FLAT_NETWORK_BROADCAST=192.168.1.255 # broadcast address
+FLAT_NETWORK_BROADCAST=192.168.2.255 # broadcast address
 ###############
 
 DIR=`pwd`
@@ -149,7 +149,7 @@ if [ "$CMD" == "run" ]; then
 	if [ "$USE_FLAT_NETWORK" == 1 ]; then
 		$NOVA_DIR/bin/nova-manage network create
 	else
-    	$NOVA_DIR/bin/nova-manage network create 10.0.0.0/8 3 16
+    	$NOVA_DIR/bin/nova-manage network create 192.168.2.0/24 3 24
 	fi
 
 
