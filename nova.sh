@@ -18,10 +18,10 @@ if [ ! -n "$HOST_IP" ]; then
     HOST_IP=`ifconfig  | grep -m 1 'inet addr:'| cut -d: -f2 | awk '{print $1}'`
 fi
 TEST=0
-USE_MYSQL=0
+USE_MYSQL=1
 MYSQL_PASS=nova
 USE_LDAP=0
-LIBVIRT_TYPE=qemu
+LIBVIRT_TYPE=kvm
 
 if [ "$USE_MYSQL" == 1 ]; then
     SQL_CONN=mysql://root:$MYSQL_PASS@localhost/nova
