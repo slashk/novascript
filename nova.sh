@@ -9,8 +9,9 @@ USE_LDAP=0
 LIBVIRT_TYPE=kvm
 USE_FLAT_NETWORK=1
 FLAT_NETWORK=192.168.1.128 # Your network
-FLAT_NETWORK_PREFIX=26 # 
-FLAT_NETWORK_SIZE=16
+FLAT_NETWORK_PREFIX=26 # CIDR
+FLAT_NETWORK_SIZE=16 # number of nodes
+FLAT_NETWORK_BROADCAST=192.168.1.255 # broadcast address
 ###############
 
 DIR=`pwd`
@@ -69,6 +70,9 @@ cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
 --network_manager=nova.network.manager.FlatManager
 --fixed_range=${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX}
 --network_size=${FLAT_NETWORK_SIZE}
+--flat_network=true
+--flat_network_bridge=br0
+--flat_network_broadcast=${FLAT_NETWORK_BROADCAST}
 NOVA_NET_CONF_EOF
 fi
 
