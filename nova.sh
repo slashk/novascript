@@ -8,9 +8,9 @@ MYSQL_PASS=nova
 USE_LDAP=0
 LIBVIRT_TYPE=kvm
 USE_FLAT_NETWORK=1
-FLAT_NETWORK=192.168.1.0 # Your network
-FLAT_NETWORK_PREFIX=24 # 
-FLAT_NETWORK_SIZE=24
+FLAT_NETWORK=192.168.1.128 # Your network
+FLAT_NETWORK_PREFIX=26 # 
+FLAT_NETWORK_SIZE=16
 ###############
 
 DIR=`pwd`
@@ -57,7 +57,7 @@ cat >/etc/nova/nova-manage.conf << NOVA_CONF_EOF
 --libvirt_type=$LIBVIRT_TYPE
 NOVA_CONF_EOF
 
-if [ "$USE_FLAT_NETWORK" == "branch" ]; then
+if [ "$USE_FLAT_NETWORK" == 1 ]; then
 	cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
 --network_manager=nova.network.manager.FlatManager
 --fixed_range=${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX}
