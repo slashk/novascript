@@ -1,7 +1,21 @@
 #!/usr/bin/env bash
+
+##### Variables to Change ####
+SOURCE_BRANCH=lp:nova
+TEST=0
+USE_MYSQL=1
+MYSQL_PASS=nova
+USE_LDAP=0
+LIBVIRT_TYPE=kvm
+USE_FLAT_NETWORK=1
+FLAT_NETWORK=192.168.1.0 # Your network
+FLAT_NETWORK_PREFIX=24 # 
+FLAT_NETWORK_SIZE=24
+###############
+
 DIR=`pwd`
 CMD=$1
-SOURCE_BRANCH=lp:nova
+
 if [ -n "$2" ]; then
     SOURCE_BRANCH=$2
 fi
@@ -17,11 +31,6 @@ if [ ! -n "$HOST_IP" ]; then
     #             you should explicitly set HOST_IP in your environment
     HOST_IP=`ifconfig  | grep -m 1 'inet addr:'| cut -d: -f2 | awk '{print $1}'`
 fi
-TEST=0
-USE_MYSQL=1
-MYSQL_PASS=nova
-USE_LDAP=0
-LIBVIRT_TYPE=kvm
 
 if [ "$USE_MYSQL" == 1 ]; then
     SQL_CONN=mysql://root:$MYSQL_PASS@localhost/nova
@@ -47,6 +56,15 @@ cat >/etc/nova/nova-manage.conf << NOVA_CONF_EOF
 --auth_driver=nova.auth.$AUTH
 --libvirt_type=$LIBVIRT_TYPE
 NOVA_CONF_EOF
+
+if [ "$USE_FLAT_NETWORK" == "branch" ]; then
+	cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
+--network_manager=nova.network.manager.FlatManager
+--fixed_range=${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX}
+--network_size=${FLAT_NETWORK_SIZE}
+NOVA_NET_CONF_EOF
+	$NOVA_DIR/bin/nova-manage network create
+fi
 
 if [ "$CMD" == "branch" ]; then
     sudo apt-get install -y bzr
@@ -91,6 +109,7 @@ function screen_it {
 }
 
 if [ "$CMD" == "run" ]; then
+	if [ "$USE_FLAT_NETWORK" == 1 ]
     killall dnsmasq
     screen -d -m -S nova -t nova
     sleep 1
