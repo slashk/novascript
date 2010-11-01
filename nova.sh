@@ -149,7 +149,7 @@ if [ "$CMD" == "run" ]; then
 	if [ "$USE_FLAT_NETWORK" == 1 ]; then
 		$NOVA_DIR/bin/nova-manage network create
 	else
-    	$NOVA_DIR/bin/nova-manage network create ${FLAT_NETWORK}/${FLAT_NETWORK_MASK} 3 ${FLAT_NETWORK_SIZE}
+    	$NOVA_DIR/bin/nova-manage network create ${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX} 3 ${FLAT_NETWORK_SIZE}
 	fi
 
 
