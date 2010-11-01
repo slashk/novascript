@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash +x
 
 ##### Variables to Change ####
 SOURCE_BRANCH=lp:nova
@@ -15,12 +15,19 @@ FLAT_NETWORK_SIZE=16
 
 DIR=`pwd`
 CMD=$1
+DIRNAME=nova
+NOVA_DIR=$DIR/$DIRNAME
+NL=`echo -ne '\015'`
+
+function screen_it {
+    screen -S nova -X screen -t $1
+    screen -S nova -p $1 -X stuff "$2$NL"
+}
 
 if [ -n "$2" ]; then
     SOURCE_BRANCH=$2
 fi
-DIRNAME=nova
-NOVA_DIR=$DIR/$DIRNAME
+
 if [ -n "$3" ]; then
     NOVA_DIR=$DIR/$3
 fi
@@ -58,12 +65,11 @@ cat >/etc/nova/nova-manage.conf << NOVA_CONF_EOF
 NOVA_CONF_EOF
 
 if [ "$USE_FLAT_NETWORK" == 1 ]; then
-	cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
+cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
 --network_manager=nova.network.manager.FlatManager
 --fixed_range=${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX}
 --network_size=${FLAT_NETWORK_SIZE}
 NOVA_NET_CONF_EOF
-	$NOVA_DIR/bin/nova-manage network create
 fi
 
 if [ "$CMD" == "branch" ]; then
@@ -101,15 +107,7 @@ MYSQL_PRESEED
     tar -C $DIR -zxf images.tgz
 fi
 
-NL=`echo -ne '\015'`
-
-function screen_it {
-    screen -S nova -X screen -t $1
-    screen -S nova -p $1 -X stuff "$2$NL"
-}
-
 if [ "$CMD" == "run" ]; then
-	if [ "$USE_FLAT_NETWORK" == 1 ]
     killall dnsmasq
     screen -d -m -S nova -t nova
     sleep 1
@@ -144,7 +142,12 @@ if [ "$CMD" == "run" ]; then
     # export environment variables for project 'admin' and user 'admin'
     $NOVA_DIR/bin/nova-manage project environment admin admin $NOVA_DIR/novarc
     # create 3 small networks
-    $NOVA_DIR/bin/nova-manage network create 10.0.0.0/8 3 16
+	if [ "$USE_FLAT_NETWORK" == 1 ]; then
+		$NOVA_DIR/bin/nova-manage network create
+	else
+    	$NOVA_DIR/bin/nova-manage network create 10.0.0.0/8 3 16
+	fi
+
 
     # nova api crashes if we start it with a regular screen command,
     # so send the start command by forcing text into the window.
