@@ -149,7 +149,7 @@ if [ "$CMD" == "run" ]; then
     # create a project called 'admin' with project manager of 'admin'
     $NOVA_DIR/bin/nova-manage project create admin admin
     $NOVA_DIR/bin/nova-manage project zipfile admin admin
-	unzip nova.zip
+    unzip nova.zip -d $NOVA_DIR
     # export environment variables for project 'admin' and user 'admin'
     $NOVA_DIR/bin/nova-manage project environment admin admin $NOVA_DIR/novarc
     # create 3 small networks
