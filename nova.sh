@@ -3,12 +3,12 @@
 ##### Variables to Change ####
 SOURCE_BRANCH=lp:nova
 TEST=0
-USE_MYSQL=1
+USE_MYSQL=0
 MYSQL_PASS=nova
 USE_LDAP=0
-LIBVIRT_TYPE=kvm
+LIBVIRT_TYPE=uml
 USE_FLAT_NETWORK=0
-FLAT_NETWORK=192.168.2.0 # Your network
+FLAT_NETWORK=192.168.2.0 # Your network range
 FLAT_NETWORK_PREFIX=24 # CIDR
 FLAT_NETWORK_SIZE=16 # number of nodes
 FLAT_NETWORK_BROADCAST=192.168.2.255 # broadcast address
@@ -65,16 +65,16 @@ cat >/etc/nova/nova-manage.conf << NOVA_CONF_EOF
 --libvirt_type=$LIBVIRT_TYPE
 NOVA_CONF_EOF
 
-# if [ "$USE_FLAT_NETWORK" == 1 ]; then
-# cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
-# --network_manager=nova.network.manager.FlatManager
-# --fixed_range=${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX}
-# --network_size=${FLAT_NETWORK_SIZE}
-# --flat_network=true
-# --flat_network_bridge=br0
-# --flat_network_broadcast=${FLAT_NETWORK_BROADCAST}
-# NOVA_NET_CONF_EOF
-# fi
+if [ "$USE_FLAT_NETWORK" == 1 ]; then
+cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
+--network_manager=nova.network.manager.FlatManager
+--fixed_range=${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX}
+--network_size=${FLAT_NETWORK_SIZE}
+--flat_network=true
+--flat_network_bridge=br0
+--flat_network_broadcast=${FLAT_NETWORK_BROADCAST}
+NOVA_NET_CONF_EOF
+fi
 
 if [ "$CMD" == "branch" ]; then
     sudo apt-get install -y bzr
@@ -93,6 +93,7 @@ if [ "$CMD" == "install" ]; then
     sudo apt-get install -y dnsmasq open-iscsi kpartx kvm gawk iptables ebtables
     sudo apt-get install -y user-mode-linux kvm libvirt-bin
     sudo apt-get install -y screen iscsitarget euca2ools vlan curl rabbitmq-server
+	sudo apt-get install -y wget
     sudo modprobe kvm
     sudo /etc/init.d/libvirt-bin restart
     sudo apt-get install -y python-twisted python-sqlalchemy python-mox python-greenlet python-carrot
@@ -148,7 +149,7 @@ if [ "$CMD" == "run" ]; then
 	if [ "$USE_FLAT_NETWORK" == 1 ]; then
 		$NOVA_DIR/bin/nova-manage network create
 	else
-    	$NOVA_DIR/bin/nova-manage network create ${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX} 3 ${FLAT_NETWORK_SIZE}
+    	$NOVA_DIR/bin/nova-manage network create 10.0.0.0/8 3 16
 	fi
 
 
