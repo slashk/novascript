@@ -91,9 +91,9 @@ if [ "$CMD" == "install" ]; then
     sudo add-apt-repository ppa:nova-core/ppa
     sudo apt-get update
     sudo apt-get install -y dnsmasq open-iscsi kpartx kvm gawk iptables ebtables
-    sudo apt-get install -y user-mode-linux kvm libvirt-bin
+    sudo apt-get install -y user-mode-linux kvm libvirt-bin uml-utilities bridge-utils debootstrap parted
     sudo apt-get install -y screen iscsitarget euca2ools vlan curl rabbitmq-server
-	sudo apt-get install -y wget
+	sudo apt-get install -y wget unzip zip
     sudo modprobe kvm
     sudo /etc/init.d/libvirt-bin restart
     sudo apt-get install -y python-twisted python-sqlalchemy python-mox python-greenlet python-carrot
@@ -111,13 +111,9 @@ MYSQL_PRESEED
 		# uml doesn't like AMI/Xen images
 		wget http://nova.openstack.org/~soren/ubuntu-lucid-uml.img.gz
 		gzip -d ubuntu-lucid-uml.img.gz
-		euca-bundle-image -i ubuntu-lucid-uml.img
-		euca-upload-bundle -b uml-image-bucket -m /tmp/ubuntu-lucid-uml.img.manifest.xml
-		euca-register uml-image-bucket/ubuntu-lucid-uml.img.manifest.xml
-	else
-	    wget http://c2477062.cdn.cloudfiles.rackspacecloud.com/images.tgz
-	    tar -C $DIR -zxf images.tgz
 	fi
+    wget http://c2477062.cdn.cloudfiles.rackspacecloud.com/images.tgz
+    tar -C $DIR -zxf images.tgz
 fi
 
 if [ "$CMD" == "run" ]; then
@@ -152,13 +148,15 @@ if [ "$CMD" == "run" ]; then
     $NOVA_DIR/bin/nova-manage user admin admin admin admin
     # create a project called 'admin' with project manager of 'admin'
     $NOVA_DIR/bin/nova-manage project create admin admin
+    $NOVA_DIR/bin/nova-manage project zipfile admin admin
+	unzip nova.zip
     # export environment variables for project 'admin' and user 'admin'
     $NOVA_DIR/bin/nova-manage project environment admin admin $NOVA_DIR/novarc
     # create 3 small networks
 	if [ "$USE_FLAT_NETWORK" == 1 ]; then
 		$NOVA_DIR/bin/nova-manage network create
 	else
-    	$NOVA_DIR/bin/nova-manage network create 10.0.0.0/8 3 16
+    	$NOVA_DIR/bin/nova-manage network create 10.1.0.0/16 3 16
 	fi
 
 
