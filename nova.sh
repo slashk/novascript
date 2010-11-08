@@ -107,8 +107,17 @@ mysql-server-5.1 mysql-server/start_on_boot boolean true
 MYSQL_PRESEED
         apt-get install -y mysql-server python-mysqldb
     fi
-    wget http://c2477062.cdn.cloudfiles.rackspacecloud.com/images.tgz
-    tar -C $DIR -zxf images.tgz
+	if [ "$LIBVIRT_TYPE" == "uml" ]; then
+		# uml doesn't like AMI/Xen images
+		wget http://nova.openstack.org/~soren/ubuntu-lucid-uml.img.gz
+		gzip -d ubuntu-lucid-uml.img.gz
+		euca-bundle-image -i ubuntu-lucid-uml.img
+		euca-upload-bundle -b uml-image-bucket -m /tmp/ubuntu-lucid-uml.img.manifest.xml
+		euca-register uml-image-bucket/ubuntu-lucid-uml.img.manifest.xml
+	else
+	    wget http://c2477062.cdn.cloudfiles.rackspacecloud.com/images.tgz
+	    tar -C $DIR -zxf images.tgz
+	fi
 fi
 
 if [ "$CMD" == "run" ]; then
