@@ -71,7 +71,7 @@ cat >>/etc/nova/nova-manage.conf << NOVA_NET_CONF_EOF
 --fixed_range=${FLAT_NETWORK}/${FLAT_NETWORK_PREFIX}
 --network_size=${FLAT_NETWORK_SIZE}
 --flat_network=true
---flat_network_bridge=br0
+--flat_network_bridge=br100
 --flat_network_broadcast=${FLAT_NETWORK_BROADCAST}
 NOVA_NET_CONF_EOF
 fi
